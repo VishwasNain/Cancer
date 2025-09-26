@@ -5,15 +5,26 @@
       "src": "app.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "150mb",
+        "maxLambdaSize": "300mb",
+        "runtime": "python3.9",
         "includeFiles": [
           "app.py",
-          "requirements.txt"
+          "requirements.txt",
+          "static/**",
+          "templates/**",
+          "*.pth",
+          "*.h5",
+          "*.pkl",
+          "*.bin"
         ]
       }
     }
   ],
   "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "/app.py"

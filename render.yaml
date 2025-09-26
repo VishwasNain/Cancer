@@ -1,0 +1,59 @@
+# Render configuration for LungScanAI
+# Reference: https://render.com/docs/deploy-render-yaml
+
+services:
+  - type: web
+    name: lungscanai
+    env: python
+    region: singapore
+    buildCommand: pip install -r requirements.txt && pip install gunicorn
+    startCommand: gunicorn app:app --worker-tmp-dir /dev/shm --workers 2 --threads 4 --worker-class gthread --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: GUNICORN_CMD_ARGS
+        value: "--workers=2 --threads=4 --worker-class=gthread --timeout 120"
+    plan: free
+    autoDeploy: true
+    numInstances: 1
+    healthCheckPath: /health
+    envVarKeys:
+      - DATABASE_URL
+      - SECRET_KEY
+      - DEBUG
+
+# Database configuration (uncomment if needed)
+# databases:
+#   - name: lungscanai-db
+#     databaseName: lungscanai
+#     user: lungscanai_user
+#     plan: free
+
+# Environment variables
+env:
+  - PYTHONUNBUFFERED: 1
+  - FLASK_APP: app.py
+  - FLASK_ENV: production
+  - DEBUG: "False"
+
+# Health check configuration
+healthChecks:
+  - name: Web Service Health Check
+    httpPath: /health
+    initialDelay: 30
+    intervalSeconds: 10
+    timeoutSeconds: 5
+    maxRetries: 3
+
+# Build configuration
+build:
+  buildCommand: pip install -r requirements.txt
+  buildCache: true
+
+# Resource constraints
+resources:
+  cpu: 1
+  memoryMB: 512
+  ephemeralStorageMB: 1024
