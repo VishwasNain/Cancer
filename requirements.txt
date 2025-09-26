@@ -1,0 +1,11 @@
+streamlit==1.50.0
+joblib==1.5.2
+matplotlib==3.10.6
+numpy==1.26.4  # Using an older, more stable version
+opencv-python-headless==4.11.0.86  # Lighter version without GUI dependencies
+pandas==2.2.1
+plotly==6.3.0
+psycopg2-binary==2.9.10
+scikit-image==0.22.0  # Lighter version
+scikit-learn==1.4.1.post1  # Lighter version
+--find-links https://download.pytorch.org/whl/torch_stable.html  # For optimized PyTorch if needed
