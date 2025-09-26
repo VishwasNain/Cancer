@@ -1,18 +1,34 @@
 #!/bin/bash
 set -e
 
-echo "Running pre-start tasks..."
+echo "=== Running pre-start tasks ==="
 
-# Install any additional dependencies
-# echo "Installing dependencies..."
-# pip install --no-cache-dir -r requirements.txt
+# Create uploads directory if it doesn't exist
+UPLOAD_DIR="/app/uploads"
+if [ ! -d "$UPLOAD_DIR" ]; then
+    echo "Creating uploads directory..."
+    mkdir -p "$UPLOAD_DIR"
+    chmod 755 "$UPLOAD_DIR"
+fi
 
-# Run database migrations (uncomment if using a database)
-# echo "Running database migrations..."
-# python manage.py migrate
+# Create logs directory if it doesn't exist
+LOG_DIR="/app/logs"
+if [ ! -d "$LOG_DIR" ]; then
+    echo "Creating logs directory..."
+    mkdir -p "$LOG_DIR"
+    touch "$LOG_DIR/app.log"
+    chmod -R 755 "$LOG_DIR"
+fi
 
-# Collect static files (for Django/Flask with static files)
-# echo "Collecting static files..."
-# python manage.py collectstatic --noinput
+# Install any additional dependencies if needed
+# echo "Installing additional dependencies..."
+# pip install --no-cache-dir package_name
 
-echo "Pre-start tasks completed."
+# Check database connection if using a database
+if [ -n "$DATABASE_URL" ]; then
+    echo "Checking database connection..."
+    # You might want to add a script to check database connectivity
+    # python /app/scripts/check_db.py
+fi
+
+echo "=== Pre-start tasks completed ==="

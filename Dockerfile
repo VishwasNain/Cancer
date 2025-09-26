@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.11-slim
+FROM python:3.9-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -7,8 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONHASHSEED=random \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.7.1
+    PIP_DEFAULT_TIMEOUT=100
 
 # Install system dependencies
 RUN apt-get update && \
@@ -17,36 +16,29 @@ RUN apt-get update && \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN pip install "poetry==$POETRY_VERSION"
-
 # Set work directory
 WORKDIR /app
 
-# Copy only requirements to cache them in docker layer
-COPY pyproject.toml poetry.lock* ./
+# Copy requirements file
+COPY requirements.txt .
 
 # Install Python dependencies
-RUN poetry config virtualenvs.create false && \
-    poetry install --no-interaction --no-ansi --no-root --only main
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
 # Copy project
 COPY . .
-
-# Install the project
-RUN poetry install --no-interaction --no-ansi --only main
-
-# Install gunicorn
-RUN pip install gunicorn
-
-# Collect static files (if using Django/Flask with static files)
-# RUN python manage.py collectstatic --noinput
 
 # Make the entrypoint script executable
 RUN chmod +x /app/entrypoint.sh
 
 # Expose the port the app runs on
 EXPOSE 10000
+
+# Set environment variables
+ENV FLASK_APP=app.py \
+    FLASK_ENV=production \
+    GUNICORN_CMD_ARGS="--workers=2 --threads=4 --worker-class=gthread --timeout 120"
 
 # Run the application
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--workers", "2", "--threads", "4", "--worker-class", "gthread", "--timeout", "120", "app:app"]

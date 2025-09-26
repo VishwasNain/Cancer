@@ -1,19 +1,33 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-# If there's a prestart.sh script in the /app directory, run it before starting
-PRE_START_PATH=/app/prestart.sh
-echo "Checking for script in $PRE_START_PATH"
-if [ -f $PRE_START_PATH ] ; then
-    echo "Running script $PRE_START_PATH"
-    . "$PRE_START_PATH"
+# Print environment variables for debugging
+echo "=== Environment Variables ==="
+printenv | sort
+echo "==========================="
+
+# Change to the app directory
+cd /app
+
+# Run prestart script if it exists
+if [ -f /app/prestart.sh ]; then
+    echo "Running prestart script..."
+    . /app/prestart.sh
 else
-    echo "There is no script $PRE_START_PATH"
+    echo "No prestart script found at /app/prestart.sh"
 fi
 
-# Run database migrations (uncomment if using a database)
-# echo "Running database migrations"
-# python manage.py migrate
+# Run database migrations if manage.py exists
+if [ -f /app/manage.py ]; then
+    echo "Running database migrations..."
+    python manage.py migrate --noinput
+fi
+
+# Collect static files if manage.py exists
+if [ -f /app/manage.py ]; then
+    echo "Collecting static files..."
+    python manage.py collectstatic --noinput
+fi
 
 # Start the Gunicorn server
 exec "$@"
