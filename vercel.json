@@ -5,7 +5,11 @@
       "src": "app.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "50mb"
+        "maxLambdaSize": "150mb",
+        "includeFiles": [
+          "app.py",
+          "requirements.txt"
+        ]
       }
     }
   ],
@@ -16,5 +20,12 @@
     }
   ],
   "buildCommand": "bash vercel_build.sh",
-  "outputDirectory": ".vercel"
+  "outputDirectory": ".vercel",
+  "regions": ["iad1"],
+  "functions": {
+    "app.py": {
+      "maxDuration": 60,
+      "memory": 3008
+    }
+  }
 }
